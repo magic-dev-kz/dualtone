@@ -1,5 +1,21 @@
 # DualTone Changelog
 
+## v11.0.0 (2026-03-29) — First Impression
+
+### Onboarding Overlay
+- Full-screen glassmorphism overlay on first visit (replaces v9 tooltip + v10 toast)
+- Title with emoji, tagline "One color in. Full system out."
+- Three feature bullets: OKLCH + WCAG, image extraction, multi-format export
+- CTA button "Pick Your First Color" dismisses overlay
+- Dismiss via CTA click, backdrop click, or Escape key
+- Purple accent glow matching app theme
+- Spring animation on card entrance
+
+### Service Worker
+- Cache version bumped to `dualtone-v11.0`
+
+---
+
 ## v10.0.0 (2026-03-29) — Micro-polish
 
 ### First-Visit Welcome Toast

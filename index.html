@@ -598,9 +598,50 @@ min-width:20px;text-align:center}
 .oc-footer{text-align:center;padding:20px 16px 24px;margin-top:24px}
 .oc-footer a{font-size:.78rem;color:var(--text-muted,var(--text-secondary,#888));text-decoration:none;opacity:.6;transition:opacity .2s}
 .oc-footer a:hover{opacity:1}
+
+/* === Onboarding Overlay (v11) === */
+.onboarding-overlay{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;
+background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+opacity:0;transition:opacity 0.4s ease;padding:24px}
+.onboarding-overlay.visible{opacity:1}
+.onboarding-overlay.hidden{display:none}
+.onboarding-card{width:100%;max-width:400px;
+background:rgba(20,20,35,0.85);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+border:1px solid rgba(167,139,250,0.15);border-radius:24px;padding:40px 32px 32px;text-align:center;
+box-shadow:0 0 80px rgba(167,139,250,0.15),0 24px 48px rgba(0,0,0,0.5);
+transform:translateY(20px) scale(0.96);transition:transform 0.5s cubic-bezier(0.34,1.56,0.64,1)}
+.onboarding-overlay.visible .onboarding-card{transform:translateY(0) scale(1)}
+.onboarding-card__emoji{font-size:3rem;margin-bottom:8px}
+.onboarding-card__title{font-family:var(--font-ui);font-size:1.75rem;font-weight:800;
+color:var(--text-primary);letter-spacing:-0.03em;margin-bottom:4px}
+.onboarding-card__tagline{font-size:1rem;color:var(--text-secondary);margin-bottom:28px;font-weight:400}
+.onboarding-card__features{list-style:none;text-align:left;margin-bottom:28px;display:flex;flex-direction:column;gap:14px}
+.onboarding-card__features li{display:flex;align-items:flex-start;gap:10px;font-size:0.88rem;color:var(--text-secondary);line-height:1.45}
+.onboarding-card__features li::before{content:'';flex-shrink:0;width:6px;height:6px;border-radius:50%;margin-top:6px;
+background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.onboarding-card__cta{display:inline-block;width:100%;padding:14px 0;border:none;border-radius:14px;cursor:pointer;
+font-family:var(--font-ui);font-size:1.05rem;font-weight:600;color:#fff;
+background:linear-gradient(135deg,var(--accent),#ec4899);
+box-shadow:0 0 30px rgba(167,139,250,0.3);transition:transform 0.2s ease,box-shadow 0.2s ease}
+.onboarding-card__cta:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(167,139,250,0.5)}
+.onboarding-card__cta:active{transform:translateY(0) scale(0.98)}
 </style>
 </head>
 <body>
+
+<div class="onboarding-overlay hidden" id="onboardingOverlay">
+  <div class="onboarding-card">
+    <div class="onboarding-card__emoji">&#x1F3A8;</div>
+    <div class="onboarding-card__title">DualTone</div>
+    <p class="onboarding-card__tagline">One color in. Full system out.</p>
+    <ul class="onboarding-card__features">
+      <li>OKLCH-based palettes with WCAG auto-fix</li>
+      <li>Extract colors from images</li>
+      <li>Export to CSS, Tailwind, or design tokens</li>
+    </ul>
+    <button class="onboarding-card__cta" id="onboardingCta">Pick Your First Color &#8594;</button>
+  </div>
+</div>
 
 <a href="#mainContent" class="skip-to-content">Skip to content</a>
 
@@ -2420,7 +2461,7 @@ function generateShareCardV5(){
   // Version badge
   ctx.fillStyle='rgba(255,255,255,0.25)';
   ctx.font='400 13px system-ui,sans-serif';
-  ctx.fillText('v8.0',1160,590);
+  ctx.fillText('v11.0',1160,590);
 
   return canvas;
 }
@@ -2771,28 +2812,29 @@ $('shareTwitterBtn').addEventListener('click',function(){
   window.open('https://twitter.com/intent/tweet?text='+text,'_blank','noopener,noreferrer');
 });
 
-// v9: First-visit keyboard shortcut tooltip
+// v11: Onboarding overlay (replaces v9 tooltip + v10 toast for first visit)
 (function(){
   var FIRST_VISIT_KEY='dualtone_first_visit_shown';
-  if(!localStorage.getItem(FIRST_VISIT_KEY)){
-    // v10: Welcome toast
-    setTimeout(function(){showToast('Pick a color or drop an image to start');},800);
-    var tip=document.createElement('div');
-    tip.className='first-visit-tooltip';
-    tip.innerHTML='Press <kbd>Space</kbd> for random color';
-    tip.style.cssText='position:fixed;bottom:80px;right:24px;padding:12px 18px;border-radius:12px;'+
-      'background:var(--bg-surface);border:1px solid var(--accent);color:var(--text-primary);'+
-      'font-size:0.82rem;font-weight:600;z-index:50;opacity:0;transform:translateY(8px);'+
-      'transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none;'+
-      'box-shadow:0 0 24px rgba(167,139,250,0.25);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)';
-    tip.querySelector('kbd').style.cssText='display:inline-block;padding:2px 7px;border-radius:4px;'+
-      'background:var(--bg-elevated);border:1px solid var(--border-color);font-family:var(--font-mono);'+
-      'font-size:0.72rem;margin:0 3px';
-    document.body.appendChild(tip);
-    setTimeout(function(){tip.style.opacity='1';tip.style.transform='translateY(0)';},1500);
-    setTimeout(function(){tip.style.opacity='0';tip.style.transform='translateY(8px)';},7000);
-    setTimeout(function(){if(tip.parentNode)tip.parentNode.removeChild(tip);},7500);
+  var overlay=document.getElementById('onboardingOverlay');
+  var ctaBtn=document.getElementById('onboardingCta');
+  if(!overlay)return;
+
+  function dismissOverlay(){
+    overlay.classList.remove('visible');
+    setTimeout(function(){overlay.classList.add('hidden');},400);
     localStorage.setItem(FIRST_VISIT_KEY,'1');
+  }
+
+  if(!localStorage.getItem(FIRST_VISIT_KEY)){
+    overlay.classList.remove('hidden');
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      overlay.classList.add('visible');
+    });});
+    if(ctaBtn) ctaBtn.addEventListener('click',dismissOverlay);
+    overlay.addEventListener('click',function(e){if(e.target===overlay)dismissOverlay();});
+    document.addEventListener('keydown',function(e){
+      if(e.key==='Escape'&&overlay.classList.contains('visible'))dismissOverlay();
+    });
   }
 })();
 
