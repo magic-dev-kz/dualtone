@@ -1,0 +1,14 @@
+{
+  "name": "DualTone",
+  "short_name": "DualTone",
+  "description": "Light & dark palette generator",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a1a2e",
+  "theme_color": "#a78bfa",
+  "scope": ".",
+  "icons": [
+    {"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🎨</text></svg>", "sizes": "any", "type": "image/svg+xml", "purpose": "any"},
+    {"src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='80' font-size='80'>🎨</text></svg>", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable"}
+  ]
+}
