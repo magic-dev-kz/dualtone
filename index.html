@@ -478,6 +478,18 @@ cursor:pointer}
 }
 /* Focus styles */
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* Swatch pulse animation on click (v6) */
+@keyframes swatchPulse{0%{transform:scale(1);box-shadow:none}50%{transform:scale(1.25);box-shadow:0 0 20px currentColor}100%{transform:scale(1);box-shadow:none}}
+.swatch.pulse-click{animation:swatchPulse 0.5s cubic-bezier(0.34,1.56,0.64,1)!important;z-index:20}
+.semantic-card.pulse-click{animation:swatchPulse 0.5s cubic-bezier(0.34,1.56,0.64,1)!important;z-index:20}
+
+/* WCAG badge pulse green on autofix (v6) */
+@keyframes wcagFixPulse{0%{background:var(--accent-dim);color:var(--accent)}25%{background:rgba(74,222,128,0.25);color:var(--success);transform:scale(1.05)}50%{background:rgba(74,222,128,0.35);color:var(--success);transform:scale(1.08)}75%{background:rgba(74,222,128,0.25);color:var(--success);transform:scale(1.05)}100%{background:rgba(74,222,128,0.15);color:var(--success);transform:scale(1)}}
+.collapsible-hint.fixed-pulse{animation:wcagFixPulse 1s cubic-bezier(0.4,0,0.2,1)!important}
+
+/* Harmony swatch persistent labels (v6) */
+.harmony-swatch::after{opacity:0.8;font-size:0.6rem;font-weight:600;color:var(--text-secondary);bottom:-18px}
 .oc-footer{text-align:center;padding:20px 16px 24px;margin-top:24px}
 .oc-footer a{font-size:.78rem;color:var(--text-muted,var(--text-secondary,#888));text-decoration:none;opacity:.6;transition:opacity .2s}
 .oc-footer a:hover{opacity:1}
@@ -1040,7 +1052,9 @@ function renderPaletteGrid(){
       s.addEventListener('click',function(){
         copyText(c.hex);
         s.classList.add('copied');
-        setTimeout(function(){s.classList.remove('copied');},900);
+        s.classList.add('pulse-click');
+        showToast('Copied '+c.hex+'!');
+        setTimeout(function(){s.classList.remove('copied');s.classList.remove('pulse-click');},900);
       });
       s.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();s.click();}});
       swatches.appendChild(s);
@@ -1065,7 +1079,12 @@ function renderSemanticRow(){
     card.setAttribute('role','button');
     card.setAttribute('aria-label',c.label+': '+c.hex);
     card.setAttribute('tabindex','0');
-    card.addEventListener('click',function(){copyText(c.hex);showToast('Copied '+c.hex);});
+    card.addEventListener('click',function(){
+      copyText(c.hex);
+      card.classList.add('pulse-click');
+      showToast('Copied '+c.hex+'!');
+      setTimeout(function(){card.classList.remove('pulse-click');},600);
+    });
     card.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();card.click();}});
     row.appendChild(card);
   });
@@ -1319,6 +1338,8 @@ function updateAll(){
   // Update logo gradient
   document.querySelector('.logo-icon').style.background=
     'linear-gradient(135deg,'+state.palette.primary.colors[5].hex+','+state.palette.secondary.colors[5].hex+')';
+  // v6: Update hero visual strips with current palette colors
+  updateHeroStrips(state.palette);
 }
 
 function applyAppTheme(){
@@ -1490,8 +1511,17 @@ $('wcagAutofixBtn').addEventListener('click',function(){
   renderWcag();
   renderExport();
   updateCollapsibleBadges();
-  if(fixCount>0)showToast('Fixed '+fixCount+' contrast issue'+(fixCount>1?'s':''));
-  else showToast('All pairs already pass AA!');
+  if(fixCount>0){
+    showToast('Fixed '+fixCount+' contrast issue'+(fixCount>1?'s':''));
+    // v6: Pulse the WCAG badge green
+    var wcagHint=$('hintWcag');
+    if(wcagHint){
+      wcagHint.classList.remove('fixed-pulse');
+      void wcagHint.offsetWidth; // force reflow to restart animation
+      wcagHint.classList.add('fixed-pulse');
+      setTimeout(function(){wcagHint.classList.remove('fixed-pulse');},1200);
+    }
+  }else{showToast('All pairs already pass AA!');}
 });
 
 // Hash change
@@ -1532,6 +1562,20 @@ function collapseHero(){
   var hero=$('heroSection');
   if(hero)hero.classList.add('collapsed');
   if(heroVisualTimer){clearInterval(heroVisualTimer);heroVisualTimer=null;}
+}
+
+// v6: Update hero strips with actual palette when color changes
+function updateHeroStrips(palette){
+  var container=$('heroVisual');
+  if(!container||heroCollapsed)return;
+  var scales=[palette.primary,palette.secondary,palette.accent,palette.neutral];
+  var strips=container.querySelectorAll('.hero-strip');
+  for(var i=0;i<strips.length&&i<scales.length;i++){
+    var cells=strips[i].querySelectorAll('.hero-strip-cell');
+    for(var j=0;j<cells.length&&j<scales[i].colors.length;j++){
+      cells[j].style.background=scales[i].colors[j].hex;
+    }
+  }
 }
 
 // Hero visual: 4 strips of random palette colors, cycling
@@ -2208,7 +2252,7 @@ function generateShareCardV5(){
   // Version badge
   ctx.fillStyle='rgba(255,255,255,0.25)';
   ctx.font='400 13px system-ui,sans-serif';
-  ctx.fillText('v5.0',1160,590);
+  ctx.fillText('v6.0',1160,590);
 
   return canvas;
 }

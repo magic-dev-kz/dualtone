@@ -1,5 +1,37 @@
 # DualTone Changelog
 
+## v6.0.0 (2026-03-29) — Quality Polish by Mario
+
+### Hero Visual Strips Update on Color Change
+- Hero visual strips now update to reflect the current palette when color changes
+- Previously only cycled random palettes on a 3s timer
+- New `updateHeroStrips()` function called from `updateAll()` pipeline
+
+### Swatch Click Feedback
+- Pulse animation on swatch click (scale up with glow, then settle)
+- Toast now shows the copied HEX value: "Copied #6366F1!" instead of generic "Copied!"
+- Applied to both palette swatches and semantic color cards
+- CSS `@keyframes swatchPulse` with spring easing
+
+### Harmony Swatch Labels
+- Labels (Compl., Analog 1, Analog 2, Triad 1, Triad 2, Current) now always visible
+- Previously only showed on hover via `::after` pseudo-element
+- Increased font-size to 0.6rem and weight 600 for readability
+
+### WCAG Badge Pulse on Auto-fix
+- When "Auto-fix All" resolves contrast issues, the WCAG badge pulses green
+- `@keyframes wcagFixPulse` animates from accent to green with scale
+- Pulse lasts 1.2s then returns to normal state
+- Only triggers when fixes were actually applied
+
+### Share Card
+- Version badge updated to v6.0
+
+### Service Worker
+- Cache version bumped to `dualtone-v6.0`
+
+---
+
 ## v5.0.0 (2026-03-29) — Feature Pack v2 by Mario
 
 ### Gradient Generator
