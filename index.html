@@ -729,6 +729,7 @@ transition:all var(--transition-normal)}
     <button class="copy-css-btn" id="copyCssBtn" aria-label="Copy CSS variables">Copy CSS</button>
     <button class="copy-tw-btn" id="copyTwBtn" aria-label="Copy Tailwind config">Copy Tailwind</button>
     <button class="copy-tw-btn" id="copyTokensBtn" aria-label="Copy Design Tokens JSON">Copy Design Tokens</button>
+    <button class="copy-tw-btn" id="copyFigmaBtn" aria-label="Copy Figma variables JSON">Copy Figma</button>
     <button class="share-btn" id="shareBtn" aria-label="Share palette">Share &amp; Export Card</button>
     <button class="share-btn" id="shareTwitterBtn" aria-label="Share on Twitter/X" title="Share on Twitter/X" style="font-size:0;width:36px;height:36px">
       <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -950,7 +951,7 @@ transition:all var(--transition-normal)}
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <div class="kbd-hint" id="kbdHint" aria-hidden="true">
-<kbd>Space</kbd> Random &nbsp;<kbd>C</kbd> CSS &nbsp;<kbd>T</kbd> Tailwind &nbsp;<kbd>D</kbd> Tokens<br>
+<kbd>Space</kbd> Random &nbsp;<kbd>C</kbd> CSS &nbsp;<kbd>T</kbd> Tailwind &nbsp;<kbd>D</kbd> Tokens &nbsp;<kbd>F</kbd> Figma<br>
 <kbd>H</kbd> Harmonies &nbsp;<kbd>1</kbd> Light &nbsp;<kbd>2</kbd> Dark
 </div>
 
@@ -2282,6 +2283,54 @@ function generateDesignTokens(){
   return JSON.stringify(tokens,null,2);
 }
 
+function generateFigmaVariables(){
+  var p=state.palette;
+  var pri=p.primary.colors;
+  var sec=p.secondary.colors;
+  var acc=p.accent.colors;
+  var neu=p.neutral.colors;
+  var figma={
+    collection:"Colors",
+    modes:{
+      Light:{
+        primary:pri[5].hex,
+        "primary-light":pri[3].hex,
+        "primary-dark":pri[7].hex,
+        secondary:sec[5].hex,
+        "secondary-light":sec[3].hex,
+        "secondary-dark":sec[7].hex,
+        accent:acc[5].hex,
+        "accent-light":acc[3].hex,
+        "accent-dark":acc[7].hex,
+        background:neu[0].hex,
+        surface:"#ffffff",
+        "surface-variant":neu[1].hex,
+        text:neu[9].hex,
+        "text-secondary":neu[7].hex,
+        border:neu[3].hex
+      },
+      Dark:{
+        primary:pri[4].hex,
+        "primary-light":pri[3].hex,
+        "primary-dark":pri[6].hex,
+        secondary:sec[4].hex,
+        "secondary-light":sec[3].hex,
+        "secondary-dark":sec[6].hex,
+        accent:acc[4].hex,
+        "accent-light":acc[3].hex,
+        "accent-dark":acc[6].hex,
+        background:neu[9].hex,
+        surface:neu[8].hex,
+        "surface-variant":neu[7].hex,
+        text:neu[1].hex,
+        "text-secondary":neu[3].hex,
+        border:neu[7].hex
+      }
+    }
+  };
+  return JSON.stringify(figma,null,2);
+}
+
 // ============================================================
 // FEATURE: COLOR HARMONY SUGGESTIONS (clickable swatches)
 // ============================================================
@@ -2367,6 +2416,17 @@ $('copyTokensBtn').addEventListener('click',function(){
     });
   }else{
     fallbackCopy(dt,'Copied Design Tokens!');
+  }
+});
+
+$('copyFigmaBtn').addEventListener('click',function(){
+  var fg=generateFigmaVariables();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(fg).then(function(){showToast('Copied Figma variables!');}).catch(function(){
+      fallbackCopy(fg,'Copied Figma variables!');
+    });
+  }else{
+    fallbackCopy(fg,'Copied Figma variables!');
   }
 });
 
@@ -2584,7 +2644,7 @@ function generateShareCardV5(){
   // Version badge
   ctx.fillStyle='rgba(255,255,255,0.25)';
   ctx.font='400 13px system-ui,sans-serif';
-  ctx.fillText('v14.0',1160,590);
+  ctx.fillText('v15.0',1160,590);
 
   return canvas;
 }
@@ -2692,6 +2752,16 @@ document.addEventListener('keydown',function(e){
           fallbackCopy(dt,'Copied Design Tokens!');
         });
       }else{fallbackCopy(dt,'Copied Design Tokens!');}
+      break;
+    case 'f':
+    case 'F': // F → Copy Figma variables
+      e.preventDefault();
+      var fg=generateFigmaVariables();
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(fg).then(function(){showToast('Copied Figma variables!');}).catch(function(){
+          fallbackCopy(fg,'Copied Figma variables!');
+        });
+      }else{fallbackCopy(fg,'Copied Figma variables!');}
       break;
     case 'h':
     case 'H': // H → Toggle harmony suggestions visibility

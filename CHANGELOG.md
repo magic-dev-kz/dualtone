@@ -1,5 +1,25 @@
 # DualTone Changelog
 
+## v15.0.0 (2026-03-29) — Figma Plugin Format
+
+Feature update by Mario.
+
+### Figma Variables Export
+- New "Copy Figma" button in header alongside CSS, Tailwind, and Design Tokens exports
+- Exports in Figma variables JSON format with `collection: "Colors"` and two modes: Light and Dark
+- Includes primary, secondary, accent (with light/dark variants), background, surface, surface-variant, text, text-secondary, and border tokens
+- Clipboard copy with toast notification "Copied Figma variables!"
+- Keyboard shortcut `F` to copy Figma variables
+- Keyboard hint updated to include `F` Figma
+
+### Share Card
+- Version badge updated to v15.0
+
+### Service Worker
+- Cache version bumped to `dualtone-v15.0`
+
+---
+
 ## v14.0.0 (2026-03-29) — Contrast Ratio Display
 
 Feature update by Mario.
