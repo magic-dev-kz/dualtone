@@ -525,7 +525,13 @@ padding:60px 80px;text-align:center;transition:all 300ms ease;
 background:var(--bg-surface);box-shadow:var(--shadow-lg)}
 .image-drop-zone.dragover .image-drop-zone-inner{border-color:#ec4899;
 background:rgba(167,139,250,0.12);transform:scale(1.02);
-box-shadow:var(--shadow-lg),0 0 40px rgba(167,139,250,0.2)}
+box-shadow:var(--shadow-lg),0 0 40px rgba(167,139,250,0.2);
+animation:dropZonePulse 1.5s ease-in-out infinite}
+@keyframes dropZonePulse{0%{border-color:#ec4899;box-shadow:var(--shadow-lg),0 0 40px rgba(167,139,250,0.2)}50%{border-color:var(--accent);box-shadow:var(--shadow-lg),0 0 60px rgba(236,72,153,0.3)}100%{border-color:#ec4899;box-shadow:var(--shadow-lg),0 0 40px rgba(167,139,250,0.2)}}
+/* v9: Animated dash offset on drop zone border */
+.image-drop-zone-inner{background-image:none;background-size:auto}
+.image-drop-zone.active .image-drop-zone-inner{animation:dashRotate 8s linear infinite}
+@keyframes dashRotate{to{background-position:100% 0}}
 .image-drop-zone-icon{font-size:3rem;margin-bottom:12px;opacity:0.7}
 .image-drop-zone-text{font-size:1.1rem;font-weight:600;color:var(--text-primary);margin-bottom:4px}
 .image-drop-zone-hint{font-size:0.8rem;color:var(--text-tertiary)}
@@ -626,6 +632,9 @@ min-width:20px;text-align:center}
     <button class="copy-css-btn" id="copyCssBtn" aria-label="Copy CSS variables">Copy CSS</button>
     <button class="copy-tw-btn" id="copyTwBtn" aria-label="Copy Tailwind config">Copy Tailwind</button>
     <button class="share-btn" id="shareBtn" aria-label="Share palette">Share &amp; Export Card</button>
+    <button class="share-btn" id="shareTwitterBtn" aria-label="Share on Twitter/X" title="Share on Twitter/X" style="font-size:0;width:36px;height:36px">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+    </button>
     <button class="theme-toggle" id="appThemeToggle" aria-label="Toggle app theme">
       <span id="themeIcon">Dark</span>
     </button>
@@ -2745,6 +2754,36 @@ renderHistory();
 renderRecentColors();
 // If URL has color params, collapse hero immediately
 if(window.location.hash&&window.location.hash.length>1){collapseHero();}
+
+// v9: Share on Twitter/X
+$('shareTwitterBtn').addEventListener('click',function(){
+  var hex=state.hex.replace('#','');
+  var text=encodeURIComponent('Generated this color palette with DualTone \uD83C\uDFA8 https://magic-dev-kz.github.io/dualtone/#'+hex);
+  window.open('https://twitter.com/intent/tweet?text='+text,'_blank','noopener,noreferrer');
+});
+
+// v9: First-visit keyboard shortcut tooltip
+(function(){
+  var FIRST_VISIT_KEY='dualtone_first_visit_shown';
+  if(!localStorage.getItem(FIRST_VISIT_KEY)){
+    var tip=document.createElement('div');
+    tip.className='first-visit-tooltip';
+    tip.innerHTML='Press <kbd>Space</kbd> for random color';
+    tip.style.cssText='position:fixed;bottom:80px;right:24px;padding:12px 18px;border-radius:12px;'+
+      'background:var(--bg-surface);border:1px solid var(--accent);color:var(--text-primary);'+
+      'font-size:0.82rem;font-weight:600;z-index:50;opacity:0;transform:translateY(8px);'+
+      'transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);pointer-events:none;'+
+      'box-shadow:0 0 24px rgba(167,139,250,0.25);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)';
+    tip.querySelector('kbd').style.cssText='display:inline-block;padding:2px 7px;border-radius:4px;'+
+      'background:var(--bg-elevated);border:1px solid var(--border-color);font-family:var(--font-mono);'+
+      'font-size:0.72rem;margin:0 3px';
+    document.body.appendChild(tip);
+    setTimeout(function(){tip.style.opacity='1';tip.style.transform='translateY(0)';},1500);
+    setTimeout(function(){tip.style.opacity='0';tip.style.transform='translateY(8px)';},7000);
+    setTimeout(function(){if(tip.parentNode)tip.parentNode.removeChild(tip);},7500);
+    localStorage.setItem(FIRST_VISIT_KEY,'1');
+  }
+})();
 
 })();
 </script>

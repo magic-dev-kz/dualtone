@@ -1,5 +1,23 @@
 # DualTone Changelog
 
+## v9.0.0 (2026-03-29) — Share, Hints & Drop Zone Polish
+
+### Share on Twitter/X
+- New Twitter/X button in header opens tweet with palette hex color in URL hash
+
+### First-Visit Keyboard Shortcut Tooltip
+- On first visit, a floating tooltip appears: "Press Space for random color"
+- Auto-dismisses after 5.5 seconds, stored in localStorage so it only shows once
+
+### Image Drop Zone Visual Polish
+- Animated pulsing border on drag-over (alternates between accent and pink)
+- Enhanced glow effect during drag
+
+### Service Worker
+- Cache version bumped to `dualtone-v9.0`
+
+---
+
 ## v8.0.0 (2026-03-29) — Image Color Extraction by Mario
 
 ### Image Color Extraction
