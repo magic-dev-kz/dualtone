@@ -1,5 +1,23 @@
 # DualTone Changelog
 
+## v13.0.0 (2026-03-29) — Design Tokens Export
+
+### Design Tokens Export
+- New "Copy Design Tokens" button in header alongside CSS and Tailwind export buttons
+- Exports in W3C Design Tokens Community Group format (JSON)
+- Includes both light and dark theme variants with primary, secondary, accent, background, surface, and text tokens
+- Each token uses `$value` and `$type` fields per the DTCG spec
+- Clipboard copy with toast notification
+- Keyboard shortcut `D` to copy Design Tokens
+
+### Share Card
+- Version badge updated to v13.0
+
+### Service Worker
+- Cache version bumped to `dualtone-v13.0`
+
+---
+
 ## v12.0.0 (2026-03-29) — Live UI Preview
 
 ### Mini UI Preview

@@ -723,6 +723,7 @@ transition:all var(--transition-normal)}
   <div class="header-actions">
     <button class="copy-css-btn" id="copyCssBtn" aria-label="Copy CSS variables">Copy CSS</button>
     <button class="copy-tw-btn" id="copyTwBtn" aria-label="Copy Tailwind config">Copy Tailwind</button>
+    <button class="copy-tw-btn" id="copyTokensBtn" aria-label="Copy Design Tokens JSON">Copy Design Tokens</button>
     <button class="share-btn" id="shareBtn" aria-label="Share palette">Share &amp; Export Card</button>
     <button class="share-btn" id="shareTwitterBtn" aria-label="Share on Twitter/X" title="Share on Twitter/X" style="font-size:0;width:36px;height:36px">
       <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
@@ -944,7 +945,7 @@ transition:all var(--transition-normal)}
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <div class="kbd-hint" id="kbdHint" aria-hidden="true">
-<kbd>Space</kbd> Random &nbsp;<kbd>C</kbd> CSS &nbsp;<kbd>T</kbd> Tailwind<br>
+<kbd>Space</kbd> Random &nbsp;<kbd>C</kbd> CSS &nbsp;<kbd>T</kbd> Tailwind &nbsp;<kbd>D</kbd> Tokens<br>
 <kbd>H</kbd> Harmonies &nbsp;<kbd>1</kbd> Light &nbsp;<kbd>2</kbd> Dark
 </div>
 
@@ -2240,6 +2241,39 @@ function generateTailwindConfig(){
 }
 
 // ============================================================
+// FEATURE: DESIGN TOKENS EXPORT (W3C Design Tokens Community Group format)
+// ============================================================
+
+function generateDesignTokens(){
+  var p=state.palette;
+  var pri=p.primary.colors;
+  var sec=p.secondary.colors;
+  var acc=p.accent.colors;
+  var neu=p.neutral.colors;
+  var tokens={
+    color:{
+      light:{
+        primary:{"$value":pri[5].hex,"$type":"color"},
+        secondary:{"$value":sec[5].hex,"$type":"color"},
+        accent:{"$value":acc[5].hex,"$type":"color"},
+        background:{"$value":neu[0].hex,"$type":"color"},
+        surface:{"$value":"#ffffff","$type":"color"},
+        text:{"$value":neu[9].hex,"$type":"color"}
+      },
+      dark:{
+        primary:{"$value":pri[4].hex,"$type":"color"},
+        secondary:{"$value":sec[4].hex,"$type":"color"},
+        accent:{"$value":acc[4].hex,"$type":"color"},
+        background:{"$value":neu[9].hex,"$type":"color"},
+        surface:{"$value":neu[8].hex,"$type":"color"},
+        text:{"$value":neu[1].hex,"$type":"color"}
+      }
+    }
+  };
+  return JSON.stringify(tokens,null,2);
+}
+
+// ============================================================
 // FEATURE: COLOR HARMONY SUGGESTIONS (clickable swatches)
 // ============================================================
 
@@ -2313,6 +2347,17 @@ $('copyTwBtn').addEventListener('click',function(){
     });
   }else{
     fallbackCopy(tw,'Copied Tailwind config!');
+  }
+});
+
+$('copyTokensBtn').addEventListener('click',function(){
+  var dt=generateDesignTokens();
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(dt).then(function(){showToast('Copied Design Tokens!');}).catch(function(){
+      fallbackCopy(dt,'Copied Design Tokens!');
+    });
+  }else{
+    fallbackCopy(dt,'Copied Design Tokens!');
   }
 });
 
@@ -2530,7 +2575,7 @@ function generateShareCardV5(){
   // Version badge
   ctx.fillStyle='rgba(255,255,255,0.25)';
   ctx.font='400 13px system-ui,sans-serif';
-  ctx.fillText('v12.0',1160,590);
+  ctx.fillText('v13.0',1160,590);
 
   return canvas;
 }
@@ -2628,6 +2673,16 @@ document.addEventListener('keydown',function(e){
           fallbackCopy(tw,'Copied Tailwind!');
         });
       }else{fallbackCopy(tw,'Copied Tailwind!');}
+      break;
+    case 'd':
+    case 'D': // D → Copy Design Tokens
+      e.preventDefault();
+      var dt=generateDesignTokens();
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(dt).then(function(){showToast('Copied Design Tokens!');}).catch(function(){
+          fallbackCopy(dt,'Copied Design Tokens!');
+        });
+      }else{fallbackCopy(dt,'Copied Design Tokens!');}
       break;
     case 'h':
     case 'H': // H → Toggle harmony suggestions visibility
