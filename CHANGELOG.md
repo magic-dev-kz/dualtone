@@ -1,5 +1,22 @@
 # DualTone Changelog
 
+## v10.0.0 (2026-03-29) — Micro-polish
+
+### First-Visit Welcome Toast
+- On first visit (no localStorage), shows "Pick a color or drop an image to start" toast
+
+### Gradient Preview Strip
+- Hero palette strips height increased from 32px to 64px for better visual presence
+
+### Share Card Button Glow
+- Share button now pulses with an accent glow animation (`shareGlow`) for more prominence
+- Hover glow intensified
+
+### Service Worker
+- Cache version bumped to `dualtone-v10.0`
+
+---
+
 ## v9.0.0 (2026-03-29) — Share, Hints & Drop Zone Polish
 
 ### Share on Twitter/X
