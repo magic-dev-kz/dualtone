@@ -1323,7 +1323,7 @@ function renderPaletteGrid(){
       var cr=contrastRatio(c.hex,fgColor).toFixed(1);
       s.innerHTML='<span class="swatch-cr">'+cr+':1</span><span class="swatch-step">'+c.step+'</span><span class="swatch-hex">'+c.hex+'</span>';
       s.setAttribute('role','button');
-      s.setAttribute('aria-label',scale.label+' '+c.step+': '+c.hex);
+      s.setAttribute('aria-label','Color: '+c.hex);
       s.setAttribute('tabindex','0');
       s.addEventListener('click',function(){
         copyText(c.hex,c.hex);
@@ -1355,7 +1355,7 @@ function renderSemanticRow(){
     var semCr=contrastRatio(c.hex,semFg).toFixed(1);
     card.innerHTML='<div class="semantic-card-label">'+escapeHtml(c.label)+'</div><div class="semantic-card-hex">'+escapeHtml(c.hex)+' <span style="opacity:0.7;font-size:0.6rem">'+semCr+':1</span></div>';
     card.setAttribute('role','button');
-    card.setAttribute('aria-label',c.label+': '+c.hex);
+    card.setAttribute('aria-label','Color: '+c.hex);
     card.setAttribute('tabindex','0');
     card.addEventListener('click',function(){
       copyText(c.hex);
@@ -2683,7 +2683,7 @@ function generateShareCardV5(){
   // Version badge
   ctx.fillStyle='rgba(255,255,255,0.25)';
   ctx.font='400 13px system-ui,sans-serif';
-  ctx.fillText('v15.0',1160,590);
+  ctx.fillText('v17.0',1160,590);
 
   return canvas;
 }

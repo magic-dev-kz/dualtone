@@ -1,5 +1,27 @@
 # DualTone Changelog
 
+## v17.0 (2026-03-29) — Accessibility Pass
+
+Feature update by Mario.
+
+### Skip-to-Content Link
+- Already present since earlier versions; verified working for keyboard navigation
+
+### Swatch Aria Labels
+- All palette swatches now use `aria-label="Color: #HEX"` for consistent screen reader announcement
+- Semantic color cards also updated to `aria-label="Color: #HEX"`
+
+### Collapsible Sections
+- All collapsible sections already have `aria-expanded` toggled correctly; verified
+
+### Share Card
+- Version badge updated to v17.0
+
+### Service Worker
+- Cache version bumped to `dualtone-v17.0`
+
+---
+
 ## v16.0 (2026-03-29) — RGB/HSL Color Input
 
 - **Color Input**: Accept rgb() and hsl() formats in addition to hex (e.g., rgb(255,0,128) or hsl(320,100%,50%))
