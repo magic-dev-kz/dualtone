@@ -1,5 +1,33 @@
 # DualTone Changelog
 
+## v8.0.0 (2026-03-29) — Image Color Extraction by Mario
+
+### Image Color Extraction
+- "Extract from Image" button added to hero section (alongside picker and random)
+- "Extract from Image" button also in input toolbar
+- Hidden file input accepts JPG, PNG, WebP (max 5 MB)
+- Drag-and-drop support: drag any image onto the page to extract colors
+- Full-screen drop zone overlay with visual feedback on dragover
+- Image resized to 200px max dimension via Canvas for performance
+- K-means clustering (k=6, 10 iterations, 1000 pixel sample) extracts dominant colors
+- Extracted colors shown in a modal with image preview and 6 clickable color circles
+- Click any extracted color to set it as base color and generate full palette
+- Staggered pop-in animation on extracted color circles
+- Hover reveals hex code below each circle
+- Escape key closes extraction modal and drop zone
+- Keyboard accessible (Enter/Space to select colors)
+
+### Share Card
+- Version badge updated to v8.0
+
+### Service Worker
+- Cache version bumped to `dualtone-v8.0`
+
+### Print
+- Extract button, drop zone, and extraction modal hidden in print mode
+
+---
+
 ## v7.0.0 (2026-03-29) — Retention Features by Mario
 
 ### URL Hash State
