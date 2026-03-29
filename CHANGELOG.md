@@ -1,5 +1,9 @@
 # DualTone Changelog
 
+## v16.0 (2026-03-29) — RGB/HSL Color Input
+
+- **Color Input**: Accept rgb() and hsl() formats in addition to hex (e.g., rgb(255,0,128) or hsl(320,100%,50%))
+- SW cache bumped to `dualtone-v16.0`
 ## v15.0.0 (2026-03-29) — Figma Plugin Format
 
 Feature update by Mario.
