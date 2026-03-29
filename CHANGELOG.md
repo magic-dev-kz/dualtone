@@ -1,5 +1,24 @@
 # DualTone Changelog
 
+## v14.0.0 (2026-03-29) — Contrast Ratio Display
+
+Feature update by Mario.
+
+### Contrast Ratio on Swatches
+- Each palette swatch now shows a WCAG contrast ratio (e.g. "12.5:1") on hover
+- Ratio is calculated between the swatch background color and the auto-chosen text color (white or dark)
+- Displayed as a small label in the top-right corner of each swatch
+- Semantic color cards also show contrast ratio next to the hex code
+- Uses the existing `contrastRatio()` function for accurate WCAG calculations
+
+### Share Card
+- Version badge updated to v14.0
+
+### Service Worker
+- Cache version bumped to `dualtone-v14.0`
+
+---
+
 ## v13.0.0 (2026-03-29) — Design Tokens Export
 
 ### Design Tokens Export

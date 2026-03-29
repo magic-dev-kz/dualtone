@@ -202,6 +202,11 @@ text-shadow:0 1px 3px rgba(0,0,0,0.4)}
 transition:opacity var(--transition-normal),transform var(--transition-normal);transform:translateY(4px);
 text-shadow:0 1px 3px rgba(0,0,0,0.4)}
 .swatch:hover .swatch-hex{opacity:0.95;transform:translateY(0)}
+.swatch-cr{font-size:0.45rem;font-weight:600;opacity:0;pointer-events:none;
+font-family:var(--font-mono);transition:opacity var(--transition-normal);
+text-shadow:0 1px 3px rgba(0,0,0,0.4);position:absolute;top:3px;right:3px;
+line-height:1;padding:1px 3px;border-radius:2px;background:rgba(0,0,0,0.25)}
+.swatch:hover .swatch-cr{opacity:0.9}
 .swatch.copied::after{content:'Copied!';position:absolute;inset:0;display:flex;align-items:center;
 justify-content:center;background:rgba(0,0,0,0.6);color:#fff;font-size:0.7rem;font-weight:600;
 border-radius:var(--radius-md);animation:copiedFade 800ms ease forwards;backdrop-filter:blur(4px)}
@@ -1312,8 +1317,10 @@ function renderPaletteGrid(){
       s.className='swatch';
       if(keySteps.indexOf(c.step)!==-1)s.setAttribute('data-key-swatch','');
       s.style.background=c.hex;
-      s.style.color=textColorForBg(c.hex);
-      s.innerHTML='<span class="swatch-step">'+c.step+'</span><span class="swatch-hex">'+c.hex+'</span>';
+      var fgColor=textColorForBg(c.hex);
+      s.style.color=fgColor;
+      var cr=contrastRatio(c.hex,fgColor).toFixed(1);
+      s.innerHTML='<span class="swatch-cr">'+cr+':1</span><span class="swatch-step">'+c.step+'</span><span class="swatch-hex">'+c.hex+'</span>';
       s.setAttribute('role','button');
       s.setAttribute('aria-label',scale.label+' '+c.step+': '+c.hex);
       s.setAttribute('tabindex','0');
@@ -1341,9 +1348,11 @@ function renderSemanticRow(){
     var card=document.createElement('div');
     card.className='semantic-card';
     card.style.background=c.hex;
-    card.style.color=textColorForBg(c.hex);
+    var semFg=textColorForBg(c.hex);
+    card.style.color=semFg;
     card.style.borderColor='rgba(0,0,0,0.15)';
-    card.innerHTML='<div class="semantic-card-label">'+escapeHtml(c.label)+'</div><div class="semantic-card-hex">'+escapeHtml(c.hex)+'</div>';
+    var semCr=contrastRatio(c.hex,semFg).toFixed(1);
+    card.innerHTML='<div class="semantic-card-label">'+escapeHtml(c.label)+'</div><div class="semantic-card-hex">'+escapeHtml(c.hex)+' <span style="opacity:0.7;font-size:0.6rem">'+semCr+':1</span></div>';
     card.setAttribute('role','button');
     card.setAttribute('aria-label',c.label+': '+c.hex);
     card.setAttribute('tabindex','0');
@@ -2575,7 +2584,7 @@ function generateShareCardV5(){
   // Version badge
   ctx.fillStyle='rgba(255,255,255,0.25)';
   ctx.font='400 13px system-ui,sans-serif';
-  ctx.fillText('v13.0',1160,590);
+  ctx.fillText('v14.0',1160,590);
 
   return canvas;
 }
