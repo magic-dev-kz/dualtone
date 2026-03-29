@@ -434,12 +434,14 @@ letter-spacing:0.06em}
 
 <main class="main" id="mainContent">
   <!-- Color Blindness Toggle -->
-  <div class="cb-toggle-wrap" id="cbToggleWrap">
-    <span class="cb-label">Vision:</span>
-    <button class="cb-btn active" data-cb="normal">Normal</button>
-    <button class="cb-btn" data-cb="protanopia">Protanopia</button>
-    <button class="cb-btn" data-cb="deuteranopia">Deuteranopia</button>
-    <button class="cb-btn" data-cb="tritanopia">Tritanopia</button>
+  <div class="cb-toggle-wrap" id="cbToggleWrap" role="toolbar" aria-label="Color blindness simulation">
+    <span class="cb-label" id="cbLabel">Vision:</span>
+    <div role="radiogroup" aria-labelledby="cbLabel">
+    <button class="cb-btn active" data-cb="normal" role="radio" aria-checked="true" tabindex="0">Normal</button>
+    <button class="cb-btn" data-cb="protanopia" role="radio" aria-checked="false" tabindex="-1">Protanopia</button>
+    <button class="cb-btn" data-cb="deuteranopia" role="radio" aria-checked="false" tabindex="-1">Deuteranopia</button>
+    <button class="cb-btn" data-cb="tritanopia" role="radio" aria-checked="false" tabindex="-1">Tritanopia</button>
+    </div>
   </div>
 
   <!-- Palette Section -->
@@ -535,10 +537,10 @@ letter-spacing:0.06em}
       <feColorMatrix type="matrix" values="0.567,0.433,0,0,0 0.558,0.442,0,0,0 0,0.242,0.758,0,0 0,0,0,1,0"/>
     </filter>
     <filter id="cbDeuteranopia">
-      <feColorMatrix type="matrix" values="0.625,0.375,0,0,0 0.700,0.300,0,0,0 0,0.300,0.700,0,0 0,0,0,1,0"/>
+      <feColorMatrix type="matrix" values="0.367,0.861,-0.228,0,0 0.280,0.673,0.047,0,0 -0.012,0.043,0.969,0,0 0,0,0,1,0"/>
     </filter>
     <filter id="cbTritanopia">
-      <feColorMatrix type="matrix" values="0.950,0.050,0,0,0 0,0.433,0.567,0,0 0,0.475,0.525,0,0 0,0,0,1,0"/>
+      <feColorMatrix type="matrix" values="1.255,-0.077,-0.178,0,0 -0.078,0.930,0.148,0,0 0.004,0.691,0.305,0,0 0,0,0,1,0"/>
     </filter>
   </defs>
 </svg>
@@ -1696,6 +1698,16 @@ function generateQuickCss(){
   lines.push('  --primary-dark: '+pri[8].hex+';');
   lines.push('  --secondary-light: '+sec[2].hex+';');
   lines.push('  --secondary-dark: '+sec[8].hex+';');
+  var acc=p.accent.colors;
+  lines.push('  --accent: '+acc[5].hex+';');
+  lines.push('  --accent-light: '+acc[2].hex+';');
+  lines.push('  --accent-dark: '+acc[8].hex+';');
+  var neu=p.neutral.colors;
+  lines.push('  --neutral-50: '+neu[0].hex+';');
+  lines.push('  --neutral-200: '+neu[2].hex+';');
+  lines.push('  --neutral-500: '+neu[5].hex+';');
+  lines.push('  --neutral-800: '+neu[8].hex+';');
+  lines.push('  --neutral-950: '+neu[10].hex+';');
   lines.push('  --success: '+p.semantic.success.hex+';');
   lines.push('  --warning: '+p.semantic.warning.hex+';');
   lines.push('  --error: '+p.semantic.error.hex+';');
@@ -1728,14 +1740,24 @@ function fallbackCopyCss(text){
 
 var cbMode='normal';
 
-document.querySelectorAll('.cb-btn').forEach(function(btn){
-  btn.addEventListener('click',function(){
-    document.querySelectorAll('.cb-btn').forEach(function(b){b.classList.remove('active');});
-    btn.classList.add('active');
-    cbMode=btn.getAttribute('data-cb');
-    applyCbFilter();
-  });
+var cbBtns=Array.from(document.querySelectorAll('.cb-btn'));
+function activateCbBtn(btn){
+  cbBtns.forEach(function(b){b.classList.remove('active');b.setAttribute('aria-checked','false');b.setAttribute('tabindex','-1');});
+  btn.classList.add('active');btn.setAttribute('aria-checked','true');btn.setAttribute('tabindex','0');btn.focus();
+  cbMode=btn.getAttribute('data-cb');
+  applyCbFilter();
+}
+cbBtns.forEach(function(btn){
+  btn.addEventListener('click',function(){activateCbBtn(btn);});
 });
+var cbGroup=document.querySelector('[role="radiogroup"]');
+if(cbGroup){cbGroup.addEventListener('keydown',function(e){
+  var idx=cbBtns.indexOf(document.activeElement);if(idx<0)return;
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'){e.preventDefault();activateCbBtn(cbBtns[(idx+1)%cbBtns.length]);}
+  else if(e.key==='ArrowLeft'||e.key==='ArrowUp'){e.preventDefault();activateCbBtn(cbBtns[(idx-1+cbBtns.length)%cbBtns.length]);}
+  else if(e.key==='Home'){e.preventDefault();activateCbBtn(cbBtns[0]);}
+  else if(e.key==='End'){e.preventDefault();activateCbBtn(cbBtns[cbBtns.length-1]);}
+});}
 
 function applyCbFilter(){
   var targets=document.querySelectorAll('.palette-section, .semantic-row, .preview-content');
