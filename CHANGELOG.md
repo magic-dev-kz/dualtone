@@ -1,5 +1,37 @@
 # DualTone Changelog
 
+## v12.0.0 (2026-03-29) — Live UI Preview
+
+### Mini UI Preview
+- New "Live Preview" section between Semantic Colors and the collapsible panels
+- 200x300px mock UI card showing: header bar with traffic light dots, paragraph text, secondary text, input field, and two buttons (Primary + Accent outline)
+- All elements styled with CSS variables from the current palette in real time
+- Light/Dark toggle to switch preview between themes
+- Updates instantly on every color change, harmony switch, or random shuffle
+
+### Font Pairing Suggestion
+- Below the mini preview card, shows a recommended font pairing based on palette characteristics
+- Warm palettes (hue 0-70, 310-360) suggest Georgia + Inter
+- Cool palettes (hue 150-280) suggest SF Pro + Fira Code
+- Neutral palettes suggest Inter + JetBrains Mono
+- Vibrant palettes (high chroma > 0.15) suggest Poppins + Space Grotesk
+- Each suggestion displays heading font, body font, and a descriptive vibe label
+
+### Palette Naming
+- Automatic palette name generated from hue, saturation, and lightness
+- Displayed as a badge next to "DualTone" in the header
+- Hardcoded hue ranges mapped to names (e.g., "Ember Sunset", "Breeze Ocean", "Dream Lavender")
+- Low-chroma colors get neutral names (Silver Mist, Ash Cloud, Slate Shadow, Obsidian Night)
+- Updates live with every color change
+
+### Share Card
+- Version badge updated to v12.0
+
+### Service Worker
+- Cache version bumped to `dualtone-v12.0`
+
+---
+
 ## v11.0.0 (2026-03-29) — First Impression
 
 ### Onboarding Overlay
