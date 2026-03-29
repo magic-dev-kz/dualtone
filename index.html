@@ -472,7 +472,8 @@ cursor:pointer}
   .swatch{border:1px solid #ccc!important}
   .wcag-autofix-btn,.save-palette-btn,.saved-chip-delete,.export-actions,
   .preview-mode-toggle,.share-btn,.theme-toggle,.random-btn,.copy-css-btn,.copy-tw-btn,
-  .history-clear-btn,.cb-toggle-wrap,.harmony-suggestions,.gradient-controls,.gradient-copy-btn{display:none!important}
+  .history-clear-btn,.cb-toggle-wrap,.harmony-suggestions,.gradient-controls,.gradient-copy-btn,
+  .recent-colors,.kbd-hint{display:none!important}
   body{background:#fff!important;color:#000!important}
   .section-title,.collapsible-header{color:#333!important}
 }
@@ -490,6 +491,32 @@ cursor:pointer}
 
 /* Harmony swatch persistent labels (v6) */
 .harmony-swatch::after{opacity:0.8;font-size:0.6rem;font-weight:600;color:var(--text-secondary);bottom:-18px}
+
+/* Recently Used Colors (v7) */
+.recent-colors{display:flex;align-items:center;gap:8px;margin-top:8px;padding:0 24px;min-height:32px}
+.recent-colors-label{font-size:0.65rem;color:var(--text-tertiary);font-weight:600;text-transform:uppercase;
+letter-spacing:0.04em;white-space:nowrap}
+.recent-color{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid var(--border-color);
+transition:all 300ms cubic-bezier(0.34,1.56,0.64,1);flex-shrink:0;position:relative}
+.recent-color:hover{transform:scale(1.3);box-shadow:0 0 12px currentColor;border-color:var(--text-secondary)}
+.recent-color:active{transform:scale(0.95)}
+.recent-color::after{content:attr(data-hex);position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+font-size:0.55rem;font-family:var(--font-mono);color:var(--text-tertiary);white-space:nowrap;opacity:0;
+transition:opacity var(--transition-fast);pointer-events:none}
+.recent-color:hover::after{opacity:1}
+
+/* Keyboard Shortcuts Hint (v7) */
+.kbd-hint{position:fixed;bottom:24px;right:24px;padding:10px 14px;border-radius:var(--radius-md);
+background:var(--bg-surface);border:1px solid var(--border-color);color:var(--text-tertiary);
+font-size:0.7rem;line-height:1.8;backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);
+box-shadow:var(--shadow-md);opacity:0.7;transition:opacity var(--transition-fast);z-index:40;
+pointer-events:none}
+.kbd-hint:hover{opacity:1}
+.kbd-hint kbd{display:inline-block;padding:1px 6px;border-radius:4px;background:var(--bg-elevated);
+border:1px solid var(--border-color);font-family:var(--font-mono);font-size:0.65rem;margin-right:4px;
+min-width:20px;text-align:center}
+@media(max-width:768px){.kbd-hint{display:none}}
+
 .oc-footer{text-align:center;padding:20px 16px 24px;margin-top:24px}
 .oc-footer a{font-size:.78rem;color:var(--text-muted,var(--text-secondary,#888));text-decoration:none;opacity:.6;transition:opacity .2s}
 .oc-footer a:hover{opacity:1}
@@ -547,6 +574,8 @@ cursor:pointer}
   <button class="random-btn" id="randomBtn" aria-label="Random color">Shuffle</button>
   <div class="harmony-suggestions" id="harmonySuggestions" aria-label="Color harmony suggestions"></div>
 </div>
+
+<div class="recent-colors" id="recentColors" aria-label="Recently used colors"></div>
 
 <main class="main" id="mainContent">
   <!-- Color Blindness Toggle -->
@@ -694,6 +723,11 @@ cursor:pointer}
 </svg>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="kbd-hint" id="kbdHint" aria-hidden="true">
+<kbd>Space</kbd> Random &nbsp;<kbd>C</kbd> CSS &nbsp;<kbd>T</kbd> Tailwind<br>
+<kbd>H</kbd> Harmonies &nbsp;<kbd>1</kbd> Light &nbsp;<kbd>2</kbd> Dark
+</div>
 
 <script>
 (function(){'use strict';
@@ -962,10 +996,16 @@ var state={
   wcagFixes:null
 };
 
-// Load from URL hash
+// Load from URL hash — supports #ff5733 (simple) and #c=ff5733&h=analogous (legacy)
 function loadFromUrl(){
   var hash=window.location.hash.replace('#','');
   if(!hash)return;
+  // Simple hex format: #ff5733
+  if(/^[0-9a-fA-F]{6}$/.test(hash)){
+    state.hex='#'+hash;
+    return;
+  }
+  // Legacy key=value format: #c=ff5733&h=analogous
   var params={};
   hash.split('&').forEach(function(p){var kv=p.split('=');if(kv.length===2)params[kv[0]]=kv[1];});
   if(params.c&&/^[0-9a-fA-F]{6}$/.test(params.c))state.hex='#'+params.c;
@@ -973,8 +1013,8 @@ function loadFromUrl(){
 }
 
 function saveToUrl(){
-  var hex=state.hex.replace('#','');
-  window.history.replaceState(null,'','#c='+hex+'&h='+state.harmony);
+  var hex=state.hex.replace('#','').toLowerCase();
+  window.history.replaceState(null,'','#'+hex);
 }
 
 function loadSaved(){
@@ -1314,6 +1354,9 @@ function renderSaved(){
   grid.appendChild(saveBtn);
 }
 
+// v7: flag to skip adding to recent colors (for random)
+var _skipRecent=false;
+
 function updateAll(){
   var hex=state.hex;
   $('colorPicker').value=hex;
@@ -1335,6 +1378,10 @@ function updateAll(){
   renderHarmonySuggestions();
   renderGradient();
   applyCbFilter();
+  // v7: recently used colors (skip for random)
+  if(!_skipRecent){addRecentColor(hex);}
+  _skipRecent=false;
+  renderRecentColors();
   // Update logo gradient
   document.querySelector('.logo-icon').style.background=
     'linear-gradient(135deg,'+state.palette.primary.colors[5].hex+','+state.palette.secondary.colors[5].hex+')';
@@ -1392,7 +1439,7 @@ $('harmonySelect').addEventListener('change',function(e){
 // BUG-C3 fix: unbiased random color
 $('randomBtn').addEventListener('click',function(){
   var h='#'+Math.floor(Math.random()*16777216).toString(16).padStart(6,'0');
-  state.hex=h;updateAll();
+  state.hex=h;_skipRecent=true;updateAll();
 });
 
 // Share button — Web Share API with PNG file, fallback to download
@@ -1626,7 +1673,7 @@ var heroRandBtn=$('heroRandomBtn');
 if(heroRandBtn){
   heroRandBtn.addEventListener('click',function(){
     var h='#'+Math.floor(Math.random()*16777216).toString(16).padStart(6,'0');
-    state.hex=h;
+    state.hex=h;_skipRecent=true;
     collapseHero();
     updateAll();
   });
@@ -2252,10 +2299,129 @@ function generateShareCardV5(){
   // Version badge
   ctx.fillStyle='rgba(255,255,255,0.25)';
   ctx.font='400 13px system-ui,sans-serif';
-  ctx.fillText('v6.0',1160,590);
+  ctx.fillText('v7.0',1160,590);
 
   return canvas;
 }
+
+// ============================================================
+// FEATURE: RECENTLY USED COLORS (v7 — last 5, localStorage)
+// ============================================================
+
+var recentMax=5;
+
+function loadRecentColors(){
+  try{var r=localStorage.getItem('dt_recent_colors');
+  return r?JSON.parse(r):[];}catch(e){return[];}
+}
+
+function saveRecentColors(colors){
+  try{localStorage.setItem('dt_recent_colors',JSON.stringify(colors));}catch(e){}
+}
+
+function addRecentColor(hex){
+  var colors=loadRecentColors();
+  // Remove duplicate if exists
+  colors=colors.filter(function(c){return c.toLowerCase()!==hex.toLowerCase();});
+  colors.unshift(hex);
+  if(colors.length>recentMax)colors=colors.slice(0,recentMax);
+  saveRecentColors(colors);
+}
+
+function renderRecentColors(){
+  var container=$('recentColors');
+  if(!container)return;
+  container.innerHTML='';
+  var colors=loadRecentColors();
+  if(colors.length===0)return;
+
+  var lbl=document.createElement('span');
+  lbl.className='recent-colors-label';
+  lbl.textContent='Recent:';
+  container.appendChild(lbl);
+
+  colors.forEach(function(hex){
+    var dot=document.createElement('div');
+    dot.className='recent-color';
+    dot.style.background=hex;
+    dot.setAttribute('data-hex',hex);
+    dot.setAttribute('title','Load '+hex);
+    dot.setAttribute('role','button');
+    dot.setAttribute('tabindex','0');
+    dot.addEventListener('click',function(){
+      state.hex=hex;
+      collapseHero();
+      updateAll();
+    });
+    dot.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();dot.click();}});
+    container.appendChild(dot);
+  });
+}
+
+// ============================================================
+// FEATURE: KEYBOARD SHORTCUTS (v7)
+// ============================================================
+
+document.addEventListener('keydown',function(e){
+  // Don't trigger when typing in inputs
+  var tag=e.target.tagName.toLowerCase();
+  if(tag==='input'||tag==='textarea'||tag==='select'||e.target.isContentEditable)return;
+  // Don't trigger with modifier keys
+  if(e.ctrlKey||e.metaKey||e.altKey)return;
+
+  switch(e.key){
+    case ' ': // Space → Random color
+      e.preventDefault();
+      var h='#'+Math.floor(Math.random()*16777216).toString(16).padStart(6,'0');
+      state.hex=h;_skipRecent=true;
+      collapseHero();
+      updateAll();
+      showToast('Random: '+h);
+      break;
+    case 'c':
+    case 'C': // C → Copy CSS
+      e.preventDefault();
+      var css=generateQuickCss();
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(css).then(function(){showToast('Copied CSS!');}).catch(function(){
+          fallbackCopy(css,'Copied CSS!');
+        });
+      }else{fallbackCopy(css,'Copied CSS!');}
+      break;
+    case 't':
+    case 'T': // T → Copy Tailwind
+      e.preventDefault();
+      var tw=generateTailwindConfig();
+      if(navigator.clipboard&&navigator.clipboard.writeText){
+        navigator.clipboard.writeText(tw).then(function(){showToast('Copied Tailwind!');}).catch(function(){
+          fallbackCopy(tw,'Copied Tailwind!');
+        });
+      }else{fallbackCopy(tw,'Copied Tailwind!');}
+      break;
+    case 'h':
+    case 'H': // H → Toggle harmony suggestions visibility
+      e.preventDefault();
+      var hc=$('harmonySuggestions');
+      if(hc){
+        var hidden=hc.style.display==='none';
+        hc.style.display=hidden?'':'none';
+        showToast(hidden?'Harmonies shown':'Harmonies hidden');
+      }
+      break;
+    case '1': // 1 → Light theme
+      e.preventDefault();
+      state.appTheme='light';
+      applyAppTheme();
+      showToast('Light theme');
+      break;
+    case '2': // 2 → Dark theme
+      e.preventDefault();
+      state.appTheme='dark';
+      applyAppTheme();
+      showToast('Dark theme');
+      break;
+  }
+});
 
 // ============================================================
 // INIT
@@ -2274,8 +2440,9 @@ loadFromUrl();
 updateAll();
 initHeroVisual();
 renderHistory();
+renderRecentColors();
 // If URL has color params, collapse hero immediately
-if(window.location.hash&&window.location.hash.indexOf('c=')!==-1){collapseHero();}
+if(window.location.hash&&window.location.hash.length>1){collapseHero();}
 
 })();
 </script>

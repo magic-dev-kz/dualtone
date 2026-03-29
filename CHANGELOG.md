@@ -1,5 +1,42 @@
 # DualTone Changelog
 
+## v7.0.0 (2026-03-29) — Retention Features by Mario
+
+### URL Hash State
+- Color saved to URL hash in simple format: `#ff5733`
+- Loading a URL with hash auto-generates the palette for that color
+- Enables sharing palettes via URL (e.g. `dualtone/#ff5733`)
+- Backward compatible with legacy `#c=hex&h=harmony` format
+- Hero collapses automatically when loading from any hash
+
+### Keyboard Shortcuts
+- `Space` generates a random color
+- `C` copies CSS variables to clipboard
+- `T` copies Tailwind config to clipboard
+- `H` toggles harmony suggestions visibility
+- `1` switches to light theme, `2` switches to dark theme
+- Shortcuts disabled when typing in input fields
+- Modifier keys (Ctrl/Cmd/Alt) do not trigger shortcuts
+- Persistent keyboard hint overlay in bottom-right corner (hidden on mobile)
+
+### Recently Used Colors
+- Last 5 manually picked colors stored in localStorage (`dt_recent_colors`)
+- Displayed as small clickable circles below the input bar
+- Click any circle to restore that color and regenerate the palette
+- Random colors (button, Space key, hero random) excluded from history
+- Hover reveals hex code tooltip below each circle
+
+### Share Card
+- Version badge updated to v7.0
+
+### Service Worker
+- Cache version bumped to `dualtone-v7.0`
+
+### Print
+- Recently used colors and keyboard hint hidden in print mode
+
+---
+
 ## v6.0.0 (2026-03-29) — Quality Polish by Mario
 
 ### Hero Visual Strips Update on Color Change
