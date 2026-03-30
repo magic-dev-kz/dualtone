@@ -874,6 +874,7 @@ transition:all var(--transition-normal)}
     </button>
     <div class="collapsible-content" id="savedContent">
       <div class="saved-grid" id="savedGrid"></div>
+      <button id="exportBackupBtn" type="button" style="margin-top:12px;width:100%;padding:10px;border-radius:8px;border:1.5px solid var(--border-color);background:var(--bg-surface);color:var(--text-secondary);font-size:0.8rem;font-weight:600;cursor:pointer;transition:all .2s" aria-label="Export all palette data as JSON backup">&#128229; Export All Data (JSON Backup)</button>
     </div>
   </section>
 
@@ -1145,17 +1146,21 @@ function generateFullPalette(hex,harmony){
   var oklch=hexToOklch(hex);
   var L=oklch[0],C=oklch[1],H=oklch[2];
 
-  // Primary
-  var primary=generateScale([L,C,H],'Primary');
+  // v21: Use locked scale base hex if available
+  var priOklch=lockedScales.primary?hexToOklch(lockedScales.primary):[L,C,H];
+  var primary=generateScale(priOklch,'Primary');
 
   // Secondary + Accent from harmony
   var hues=getHarmonyHues(H,harmony);
-  var secondary=generateScale([L,C,hues[0]],'Secondary');
-  var accent=hues.length>1?generateScale([L,C,hues[1]],'Accent'):
-    generateScale([L,C,(H+90)%360],'Accent');
+  var secOklch=lockedScales.secondary?hexToOklch(lockedScales.secondary):[L,C,hues[0]];
+  var secondary=generateScale(secOklch,'Secondary');
+  var accH=hues.length>1?hues[1]:(H+90)%360;
+  var accOklch=lockedScales.accent?hexToOklch(lockedScales.accent):[L,C,accH];
+  var accent=generateScale(accOklch,'Accent');
 
   // Neutral: desaturated primary
-  var neutral=generateScale([L,C*0.08,H],'Neutral');
+  var neuOklch=lockedScales.neutral?hexToOklch(lockedScales.neutral):[L,C*0.08,H];
+  var neutral=generateScale(neuOklch,'Neutral');
 
   // Semantic
   var semantic=generateSemanticColors(H);
@@ -1309,16 +1314,40 @@ function textColorForBg(hex){
   return lum>0.4?'#1a1a2e':'#ffffff';
 }
 
+// v21: Palette lock state — lock individual scales while randomizing others
+var lockedScales={};
+
 function renderPaletteGrid(){
   var p=state.palette;
   var grid=$('paletteGrid');
   grid.innerHTML='';
   var scales=[p.primary,p.secondary,p.accent,p.neutral];
-  scales.forEach(function(scale){
+  var scaleKeys=['primary','secondary','accent','neutral'];
+  scales.forEach(function(scale,si){
+    var sKey=scaleKeys[si];
+    var isLocked=!!lockedScales[sKey];
     var row=document.createElement('div');
     row.className='palette-row';
-    row.innerHTML='<div class="palette-label"><span class="palette-label-text">'+escapeHtml(scale.label)+
-      '</span><span class="palette-label-badge">'+escapeHtml(scale.baseHex)+'</span></div>';
+    var lockBtn=document.createElement('button');
+    lockBtn.type='button';
+    lockBtn.setAttribute('aria-label',(isLocked?'Unlock ':'Lock ')+scale.label+' scale');
+    lockBtn.setAttribute('aria-pressed',isLocked?'true':'false');
+    lockBtn.style.cssText='border:none;background:none;cursor:pointer;font-size:14px;padding:2px 6px;border-radius:4px;transition:all .2s;opacity:'+(isLocked?'1':'0.4')+';vertical-align:middle;margin-left:6px;';
+    lockBtn.textContent=isLocked?'\uD83D\uDD12':'\uD83D\uDD13';
+    lockBtn.addEventListener('click',function(){
+      if(lockedScales[sKey]){
+        delete lockedScales[sKey];
+      }else{
+        lockedScales[sKey]=scale.baseHex;
+      }
+      renderPaletteGrid();
+    });
+    var labelDiv=document.createElement('div');
+    labelDiv.className='palette-label';
+    labelDiv.innerHTML='<span class="palette-label-text">'+escapeHtml(scale.label)+
+      '</span><span class="palette-label-badge">'+escapeHtml(scale.baseHex)+'</span>';
+    labelDiv.appendChild(lockBtn);
+    row.appendChild(labelDiv);
     var swatches=document.createElement('div');
     swatches.className='swatches';
     var keySteps=[50,200,500,700,950];
@@ -3233,6 +3262,29 @@ $('shareTwitterBtn').addEventListener('click',function(){
       if(e.key==='Escape'&&overlay.classList.contains('visible'))dismissOverlay();
     });
   }
+})();
+
+// v22: Export all palette data as JSON backup
+(function(){
+  var btn=document.getElementById('exportBackupBtn');
+  if(!btn) return;
+  btn.addEventListener('click',function(){
+    var saved=[];
+    try{var s=localStorage.getItem('dualtone_saved');if(s)saved=JSON.parse(s)}catch(e){}
+    var history=[];
+    try{var h=localStorage.getItem('dt_history');if(h)history=JSON.parse(h)}catch(e){}
+    var recent=[];
+    try{var r=localStorage.getItem('dt_recent_colors');if(r)recent=JSON.parse(r)}catch(e){}
+    var theme=null;
+    try{theme=localStorage.getItem('dualtone_theme')}catch(e){}
+    if(!saved.length&&!history.length&&!recent.length){return}
+    var data={app:'DualTone',version:'22.0',exported:new Date().toISOString(),savedPalettes:saved,paletteHistory:history,recentColors:recent,theme:theme};
+    var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;a.download='dualtone-backup.json';a.click();
+    setTimeout(function(){URL.revokeObjectURL(url)},5000);
+  });
 })();
 
 })();

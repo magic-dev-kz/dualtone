@@ -1,5 +1,15 @@
 # DualTone Changelog
 
+## v22.0 (2026-03-29) — Data Portability
+
+- **Export all palette data as JSON backup**: "Export All Data" button in Saved Palettes section downloads saved palettes, palette history (last 10), recently used colors, and theme preference as a portable JSON file
+- SW cache bumped to `dualtone-v22.0`
+
+## v21.0 (2026-03-29) — Palette Lock
+
+- **Palette lock**: Lock icon button on each palette row (Primary, Secondary, Accent, Neutral); locked scales preserve their base color when shuffling/randomizing; unlocked scales regenerate normally; lock state indicated by filled/open lock emoji and opacity; aria-pressed for accessibility
+- SW cache bumped to `dualtone-v21.0`
+
 ## v20.0 (2026-03-29) — Print Styles Improved
 
 - **Print stylesheet enhanced**: Added swatch color preservation via `print-color-adjust: exact`, page breaks on palette rows, hide PWA banner/footer/onboarding, `@page` margins

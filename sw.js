@@ -1,4 +1,4 @@
-var CACHE_NAME = 'dualtone-v20.0';
+var CACHE_NAME = 'dualtone-v22.0';
 var URLS_TO_CACHE = ['./index.html', './'];
 
 self.addEventListener('install', function(e) {
