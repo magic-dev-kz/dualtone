@@ -1,5 +1,12 @@
 # DualTone Changelog
 
+
+## v23.0 (2026-03-29) — Deferred Font Loading
+
+- **Non-blocking Google Fonts**: Font CSS changed from render-blocking `<link rel="stylesheet">` to `<link rel="preload" ... onload>` with `<noscript>` fallback — improves First Contentful Paint
+- SW cache bumped to `dualtone-v23.0`
+
+---
 ## v22.0 (2026-03-29) — Data Portability
 
 - **Export all palette data as JSON backup**: "Export All Data" button in Saved Palettes section downloads saved palettes, palette history (last 10), recently used colors, and theme preference as a portable JSON file
