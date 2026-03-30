@@ -1,5 +1,10 @@
 # DualTone Changelog
 
+## v20.0 (2026-03-29) — Print Styles Improved
+
+- **Print stylesheet enhanced**: Added swatch color preservation via `print-color-adjust: exact`, page breaks on palette rows, hide PWA banner/footer/onboarding, `@page` margins
+- SW cache bumped to `dualtone-v20.0`
+
 ## v19.0 (2026-03-29) — Error Handling Hardening
 
 - **Hex input validation**: Strip `#` prefix, reject non-hex characters with clear error message

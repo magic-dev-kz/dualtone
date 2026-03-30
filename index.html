@@ -486,8 +486,13 @@ cursor:pointer}
   .preview-mode-toggle,.share-btn,.theme-toggle,.random-btn,.copy-css-btn,.copy-tw-btn,
   .history-clear-btn,.cb-toggle-wrap,.harmony-suggestions,.gradient-controls,.gradient-copy-btn,
   .recent-colors,.kbd-hint,.extract-btn,.image-drop-zone,.extracted-modal{display:none!important}
-  body{background:#fff!important;color:#000!important}
+  body{background:#fff!important;color:#000!important;font-size:12pt}
   .section-title,.collapsible-header{color:#333!important}
+  .swatch{-webkit-print-color-adjust:exact;print-color-adjust:exact;break-inside:avoid}
+  .swatch-hex,.swatch-name{color:#000!important}
+  .pwa-banner,.oc-footer,.onboarding-overlay,.skip-to-content{display:none!important}
+  .palette-row{break-inside:avoid}
+  @page{margin:1.5cm;size:auto}
 }
 /* Focus styles */
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
