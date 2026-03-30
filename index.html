@@ -3231,10 +3231,16 @@ loadSaved();
 loadFromUrl();
 updateAll();
 initHeroVisual();
-renderHistory();
-renderRecentColors();
 // If URL has color params, collapse hero immediately
 if(window.location.hash&&window.location.hash.length>1){collapseHero();}
+
+// v26: Defer non-critical features to not block first paint
+var _deferInit=function(fn){
+  if('requestIdleCallback' in window){requestIdleCallback(fn);}
+  else{setTimeout(fn,100);}
+};
+_deferInit(function(){renderHistory();});
+_deferInit(function(){renderRecentColors();});
 
 // v9: Share on Twitter/X
 $('shareTwitterBtn').addEventListener('click',function(){
