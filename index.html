@@ -1687,11 +1687,11 @@ function parseColorInput(raw){
 }
 
 $('hexInput').addEventListener('input',function(e){
-  var v=e.target.value.trim();
+  var rawVal=e.target.value.trim();
   var errEl=$('hexError');
   var inp=e.target;
   // v16: Try rgb()/hsl() first
-  var parsed=parseColorInput(v);
+  var parsed=parseColorInput(rawVal);
   if(parsed){
     state.hex=parsed;
     inp.classList.remove('hex-error');
@@ -1699,7 +1699,15 @@ $('hexInput').addEventListener('input',function(e){
     updateAll();
     return;
   }
-  if(v.charAt(0)!=='#')v='#'+v;
+  // v19: Strip # prefix, reject non-hex chars
+  var v=rawVal.replace(/^#+/,'');
+  if(v.length>0&&/[^0-9a-fA-F]/.test(v)){
+    inp.classList.add('hex-error');
+    errEl.textContent='Invalid HEX \u2014 only 0-9, A-F allowed';
+    errEl.classList.add('visible');
+    return;
+  }
+  v='#'+v;
   if(/^#[0-9a-fA-F]{6}$/.test(v)){
     state.hex=v;
     inp.classList.remove('hex-error');

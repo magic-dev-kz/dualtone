@@ -1,5 +1,10 @@
 # DualTone Changelog
 
+## v19.0 (2026-03-29) — Error Handling Hardening
+
+- **Hex input validation**: Strip `#` prefix, reject non-hex characters with clear error message
+- SW cache bumped to `dualtone-v19.0`
+
 ## v18.0 (2026-03-29) — SEO / Meta Pass
 
 - **description meta**: Added missing `<meta name="description">`
